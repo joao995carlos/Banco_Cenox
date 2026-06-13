@@ -1,0 +1,111 @@
+CREATE TABLE usuario (
+    id_usuario SERIAL PRIMARY KEY,
+    nome VARCHAR(255) not null,
+    email VARCHAR(150) not null,
+    telefone VARCHAR(20) not null,
+    senha VARCHAR(50) not null,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) not null
+);
+
+CREATE TABLE dispositivo (
+    id_dispositivo SERIAL PRIMARY KEY,
+    nome VARCHAR(100) not null,
+    modelo VARCHAR(100) not null,
+    numero_serie VARCHAR(100) not null,
+    data_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_usuario INT REFERENCES usuario(id_usuario)
+);
+
+CREATE TABLE tipo_sensor (
+    id_tipo_sensor SERIAL PRIMARY KEY,
+    descricao VARCHAR(100) not null
+);
+
+CREATE TABLE unidade_medida (
+    id_unidade SERIAL PRIMARY KEY,
+    simbolo VARCHAR(20) not null ,
+    descricao VARCHAR(100)
+);
+
+CREATE TABLE sensor (
+    id_sensor SERIAL PRIMARY KEY,
+    nome_sensor VARCHAR(255) not null,
+   id_tipo_sensor INT REFERENCES tipo_sensor(id_tipo_sensor),
+   id_unidade INT REFERENCES unidade_medida(id_unidade)
+);
+
+CREATE TABLE leitura_sensor (
+    id_leitura SERIAL PRIMARY KEY,
+    data_hora TIMESTAMP not null,
+    valor NUMERIC(10,2) not null,
+   id_sensor int REFERENCES sensor(id_sensor),
+    id_dispositivo int REFERENCES dispositivo(id_dispositivo),
+    --UNIQUE (id_sensor, id_dispositivo, data_hora) 
+ );
+
+
+create or replace function adicionar leitura (sensor int, dispositivo int, datahora timestamp, valor numeric) returns void as $$
+begin
+if not exists(
+select 1 from leitura sensor where id_sensor=sensor and id_dispositivo=dispositivo and data_hora=datahora)
+then 
+insert int leitura sensor(id_sensor, id_dispositivo, data_hora, valor)
+        VALUES (sensor, dispositivo, datahora, valor);
+end if;
+end;
+$$language plpgsql;
+
+
+
+create or replace function obter_toda_leitura_sensor(pid_sensor int) returns table(data hora timestamp, valor numeric, id_dispositivo int) as $$
+begin
+return query 
+select data hora, valor, id_dispositivo from leitura sensor where id_sensor=pid_sensor
+order by data hora;
+end;
+$$language plpgsql;
+
+
+
+create or replace view soma dispositivos as 
+select count(*) as total dispositivos
+from dispositivos;
+
+
+
+
+
+
+create or replace function adicionar leitura (sensor int, dispositivo int, datahora timestamp, valor numeric) returns void as $$
+begin
+if not exists(
+select 1 from leitura sensor where id_sensor=sensor and id_dispositivo=dispositivo and data_hora=datahora)
+then 
+insert int leitura sensor(id_sensor, id_dispositivo, data_hora, valor)
+        VALUES (sensor, dispositivo, datahora, valor);
+end if;
+end;
+$$language plpgsql;
+
+
+
+create or replace function obter_toda_leitura_sensor(pid_sensor int) returns table(data hora timestamp, valor numeric, id_dispositivo int) as $$
+begin
+return query 
+select data hora, valor, id_dispositivo from leitura sensor where id_sensor=pid_sensor
+order by data hora;
+end;
+$$language plpgsql;
+
+
+
+create or replace view soma dispositivos as 
+select count(*) as total dispositivos
+from dispositivos;
+
+
+
+
+
+
